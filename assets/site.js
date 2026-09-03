@@ -4,10 +4,10 @@
 
 const CONFIG = {
   // 1. Tu correo de contacto para la iniciativa.
-  email: "hola@ejemplo.com",
+  email: "madelainedepratdesaba@gmail.com",
 
   // 2. La URL completa de tu perfil de LinkedIn.
-  linkedin: "https://www.linkedin.com/in/TU-PERFIL",
+  linkedin: "https://www.linkedin.com/in/madelaine-r-c-55906387/",
 
   // 3. (Opcional) Si creas un formulario en https://formspree.io,
   //    pega aquí su endpoint y los formularios enviarán sin abrir el correo.
