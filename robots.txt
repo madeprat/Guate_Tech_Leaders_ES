@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://madeprat.github.io/Guate_Tech_Leaders_ES/sitemap.xml
