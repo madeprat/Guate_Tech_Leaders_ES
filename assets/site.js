@@ -1,35 +1,25 @@
 /* ============================================================
-   ⬇⬇⬇  LO ÚNICO QUE TIENES QUE EDITAR ESTÁ AQUÍ DEBAJO  ⬇⬇⬇
+   CONFIGURACIÓN — lo único que puede hacer falta tocar
    ============================================================ */
-
 const CONFIG = {
-  // 1. Tu correo de contacto para la iniciativa.
   email: "madelainedepratdesaba@gmail.com",
-
-  // 2. La URL completa de tu perfil de LinkedIn.
   linkedin: "https://www.linkedin.com/in/madelaine-r-c-55906387/",
-
-  // 3. (Opcional) Si creas un formulario en https://formspree.io,
-  //    pega aquí su endpoint y los formularios enviarán sin abrir el correo.
-  //    Si lo dejas vacío, el formulario abrirá el gestor de correo con todo relleno.
+  // Endpoint de https://formspree.io (p. ej. "https://formspree.io/f/abcdwxyz").
+  // Vacío: los formularios abren el gestor de correo con los datos ya escritos.
   formspree: ""
 };
+const SITIO = "https://502tech34.prat-cas.com/";
+/* ============================================================ */
 
-/* ============================================================
-   ⬆⬆⬆  A PARTIR DE AQUÍ NO HACE FALTA TOCAR NADA  ⬆⬆⬆
-   ============================================================ */
-
-const SITIO = "https://madeprat.github.io/Guate_Tech_Leaders_ES/";
-
-/* --- Contacto: rellena todos los enlaces marcados --- */
+/* --- Contacto --- */
 document.querySelectorAll('[data-mail]').forEach(el => {
-  const asunto = el.dataset.mail || "Sobre la primera mesa";
+  const asunto = el.dataset.mail || "Guatemala Tech Leaders España";
   el.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent(asunto)}`;
 });
 document.querySelectorAll('[data-linkedin]').forEach(el => { el.href = CONFIG.linkedin; });
 document.querySelectorAll('[data-mail-texto]').forEach(el => { el.textContent = CONFIG.email; });
 
-/* --- Menú en pantallas pequeñas --- */
+/* --- Menú móvil --- */
 const hamb = document.querySelector('.hamb');
 const menu = document.querySelector('.cab nav');
 if (hamb && menu) {
@@ -41,21 +31,22 @@ if (hamb && menu) {
 
 /* --- Compartir --- */
 const TEXTO_COMPARTIR =
-  "Madelaine Castro está reuniendo una primera mesa de profesionales de origen guatemalteco que dirigen, fundan, investigan o invierten en tecnología en España. He pensado que te interesaría.";
+  "Guatemala Tech Leaders España reúne a profesionales de origen guatemalteco que dirigen, fundan, investigan o invierten en tecnología en España. La primera mesa será en Madrid en el primer trimestre de 2027, también en directo. La prerreserva está abierta.";
 
-function avisar(msg) {
-  document.querySelectorAll('.aviso').forEach(el => {
+function avisar(msg, ambito) {
+  (ambito ? ambito.querySelectorAll('.aviso') : document.querySelectorAll('.aviso')).forEach(el => {
     el.textContent = msg;
     clearTimeout(el._t);
-    el._t = setTimeout(() => { el.textContent = ''; }, 4000);
+    el._t = setTimeout(() => { el.textContent = ''; }, 6000);
   });
 }
 
-async function copiar() {
+async function copiar(btn) {
   const txt = `${TEXTO_COMPARTIR}\n${SITIO}`;
+  const ambito = btn ? btn.closest('section') : null;
   try {
     await navigator.clipboard.writeText(txt);
-    avisar('Texto y enlace copiados. Ya puedes pegarlos donde quieras.');
+    avisar('Texto y enlace copiados.', ambito);
   } catch (e) {
     window.prompt('Copia este texto:', txt);
   }
@@ -64,16 +55,7 @@ async function copiar() {
 document.querySelectorAll('[data-compartir]').forEach(btn => {
   btn.addEventListener('click', async () => {
     const tipo = btn.dataset.compartir;
-    if (tipo === 'nativo') {
-      if (navigator.share) {
-        try {
-          await navigator.share({ title: 'Liderazgo tecnológico guatemalteco en España', text: TEXTO_COMPARTIR, url: SITIO });
-          return;
-        } catch (e) { if (e && e.name === 'AbortError') return; }
-      }
-      return copiar();
-    }
-    if (tipo === 'copiar') return copiar();
+    if (tipo === 'copiar') return copiar(btn);
     if (tipo === 'whatsapp') {
       window.open('https://wa.me/?text=' + encodeURIComponent(TEXTO_COMPARTIR + ' ' + SITIO), '_blank', 'noopener');
     }
@@ -85,44 +67,97 @@ document.querySelectorAll('[data-compartir]').forEach(btn => {
 
 /* --- Formularios --- */
 const ETIQUETAS = {
-  nombre: 'Nombre', cargo: 'Cargo o función', organizacion: 'Empresa o institución',
-  ciudad: 'Ciudad', area: 'Área tecnológica', perfil: 'LinkedIn o web',
-  entidad: 'Entidad', persona: 'Persona de contacto', mensaje: 'Mensaje'
+  nombre: 'Nombre y apellidos', email: 'Correo electrónico', telefono: 'Teléfono',
+  cargo: 'Cargo o función', organizacion: 'Empresa o institución', ciudad: 'Ciudad',
+  area: 'Área tecnológica', perfil: 'LinkedIn o web', modalidad: 'Modalidad preferida',
+  origen: 'Origen guatemalteco', aporte: 'Qué le gustaría aportar o llevarse',
+  conocido: 'Cómo ha conocido la iniciativa', referencia: 'Referencia',
+  persona: 'Persona propuesta', proponente: 'Propuesta por', motivo: 'Motivo', mensaje: 'Mensaje'
 };
+
+function referencia() {
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let r = '';
+  const v = new Uint32Array(4);
+  (window.crypto || window.msCrypto).getRandomValues(v);
+  v.forEach(n => { r += abc[n % abc.length]; });
+  return 'GTL-27-' + r;
+}
+
+function escapar(t) {
+  return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function confirmar(form, datos, porCorreo) {
+  const tipo = form.dataset.tipo;
+  const caja = form.closest('.form-caja') || form;
+  let html;
+  if (tipo === 'prerreserva') {
+    const nombre = (datos.nombre || '').split(' ')[0];
+    html = `<div class="recibido" role="status" tabindex="-1">
+      <p class="antetitulo">${porCorreo ? 'Prerreserva preparada' : 'Prerreserva recibida'}</p>
+      <h3>${nombre ? 'Gracias, ' + escapar(nombre) + '.' : 'Gracias.'}</h3>
+      <p>Tu referencia</p>
+      <span class="ref">${escapar(datos.referencia)}</span>
+      <p>${porCorreo
+        ? 'Se ha abierto tu gestor de correo con la prerreserva escrita. Envía ese mensaje para completarla. Si no se ha abierto, escribe a <a href="mailto:' + CONFIG.email + '">' + CONFIG.email + '</a> indicando tu referencia.'
+        : 'Te escribiré personalmente en los próximos días para confirmar tu plaza y la modalidad. La fecha exacta la conocerás antes de que se publique.'}</p>
+      <p style="margin:0;font-size:14.5px;color:var(--suave)">Guarda la referencia: la usaremos en todas las comunicaciones de la primera mesa.</p>
+    </div>`;
+  } else {
+    html = `<div class="recibido" role="status" tabindex="-1">
+      <h3>${porCorreo ? 'Mensaje preparado' : 'Recibido. Gracias.'}</h3>
+      <p style="margin:0">${porCorreo
+        ? 'Se ha abierto tu gestor de correo con el mensaje escrito. Envíalo para completarlo. Si no se ha abierto, escribe a <a href="mailto:' + CONFIG.email + '">' + CONFIG.email + '</a>.'
+        : 'Lo leo personalmente y te respondo en los próximos días.'}</p>
+    </div>`;
+  }
+  caja.innerHTML = html;
+  const r = caja.querySelector('.recibido');
+  if (r) r.focus();
+}
 
 document.querySelectorAll('form[data-tipo]').forEach(form => {
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const datos = Object.fromEntries(new FormData(form).entries());
+    if (form.dataset.tipo === 'prerreserva') {
+      let campo = form.querySelector('input[name=referencia]');
+      if (!campo) {
+        campo = document.createElement('input');
+        campo.type = 'hidden'; campo.name = 'referencia';
+        form.appendChild(campo);
+      }
+      if (!campo.value) campo.value = referencia();
+    }
+    const fd = new FormData(form);
+    const datos = Object.fromEntries(fd.entries());
     delete datos.consent;
-    const asunto = form.dataset.asunto || 'Contacto';
+    const asunto = (form.dataset.asunto || 'Contacto') + (datos.referencia ? ' · ' + datos.referencia : '');
 
     if (CONFIG.formspree) {
       const btn = form.querySelector('button[type=submit]');
       const original = btn.textContent;
       btn.textContent = 'Enviando…';
       btn.disabled = true;
+      fd.append('_subject', asunto);
       try {
-        const r = await fetch(CONFIG.formspree, {
-          method: 'POST',
-          headers: { 'Accept': 'application/json' },
-          body: new FormData(form)
-        });
+        const r = await fetch(CONFIG.formspree, { method: 'POST', headers: { 'Accept': 'application/json' }, body: fd });
         if (!r.ok) throw new Error('fallo');
-        form.innerHTML = '<p class="voz" style="max-width:34ch">Recibido. Te escribo en los próximos días.</p>';
+        confirmar(form, datos, false);
         return;
       } catch (err) {
         btn.textContent = original;
         btn.disabled = false;
-        avisar('El envío no ha funcionado. Escríbeme directamente a ' + CONFIG.email + '.');
+        avisar('No se ha podido enviar. Escribe directamente a ' + CONFIG.email + '.', form.parentElement);
         return;
       }
     }
 
     const cuerpo = Object.entries(datos)
+      .filter(([, v]) => String(v).trim() !== '')
       .map(([k, v]) => `${ETIQUETAS[k] || k}: ${v}`)
       .join('\n');
     window.location.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-    avisar('Se abrirá tu gestor de correo con el mensaje preparado. Si no se abre, escríbeme a ' + CONFIG.email + '.');
+    confirmar(form, datos, true);
   });
 });
