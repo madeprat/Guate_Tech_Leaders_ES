@@ -31,7 +31,7 @@ if (hamb && menu) {
 
 /* --- Compartir --- */
 const TEXTO_COMPARTIR =
-  "Guatemala Tech Leaders España reúne a profesionales de origen guatemalteco que dirigen, fundan, investigan o invierten en tecnología en España. La primera mesa será en Madrid en el primer trimestre de 2027, también en directo. La prerreserva está abierta.";
+  "Talento TI made in Guatemala en España. Encuentros abiertos en 2027 (18 de marzo, 17 de junio y 16 de diciembre), en Madrid y online. Me he acordado de ti:";
 
 function avisar(msg, ambito) {
   (ambito ? ambito.querySelectorAll('.aviso') : document.querySelectorAll('.aviso')).forEach(el => {
@@ -71,7 +71,7 @@ const ETIQUETAS = {
   cargo: 'Cargo o función', organizacion: 'Empresa o institución', ciudad: 'Ciudad',
   area: 'Área tecnológica', perfil: 'LinkedIn o web', modalidad: 'Modalidad preferida',
   origen: 'Origen guatemalteco', aporte: 'Qué le gustaría aportar o llevarse',
-  conocido: 'Cómo ha conocido la iniciativa', referencia: 'Referencia',
+  conocido: 'Cómo ha conocido la iniciativa', referencia: 'Referencia', encuentros: 'Encuentros',
   persona: 'Persona propuesta', proponente: 'Propuesta por', motivo: 'Motivo', mensaje: 'Mensaje'
 };
 
@@ -92,7 +92,21 @@ function confirmar(form, datos, porCorreo) {
   const tipo = form.dataset.tipo;
   const caja = form.closest('.form-caja') || form;
   let html;
-  if (tipo === 'prerreserva') {
+  if (tipo === 'inscripcion') {
+    const nombre = (datos.nombre || '').split(' ')[0];
+    const evs = [...form.querySelectorAll('input[name=encuentros]:checked')].map(i => i.dataset.ev);
+    const cal = (typeof EVENTOS !== 'undefined') ? evs.map(id => EVENTOS[id]).filter(Boolean).map(ev =>
+      `<a class="btn btn-s" href="${ev.g}" target="_blank" rel="noopener">${ev.t} · Google</a><a class="btn btn-s" href="${ev.i}" download>${ev.t} · Outlook/Apple</a>`).join('') : '';
+    html = `<div class="recibido" role="status" tabindex="-1">
+      <p class="antetitulo">${porCorreo ? 'Casi listo' : 'Estás dentro'}</p>
+      <h3>${nombre ? '¡Gracias, ' + escapar(nombre) + '!' : '¡Gracias!'}</h3>
+      <p>${porCorreo
+        ? 'Se ha abierto tu correo con la inscripción escrita: envíalo para completarla. Si no se ha abierto, escribe a <a href="mailto:' + CONFIG.email + '">' + CONFIG.email + '</a>.'
+        : 'Te enviaremos la sede o el enlace antes de cada encuentro.'}</p>
+      ${cal ? '<p style="margin:18px 0 0;font-weight:650;color:var(--tinta)">Guárdalo en tu calendario</p><div class="cal-links">' + cal + '</div>' : ''}
+      <p style="margin:0;font-size:14px;color:var(--suave)">Tu código: <b>${escapar(datos.referencia)}</b></p>
+    </div>`;
+  } else if (tipo === 'prerreserva') {
     const nombre = (datos.nombre || '').split(' ')[0];
     html = `<div class="recibido" role="status" tabindex="-1">
       <p class="antetitulo">${porCorreo ? 'Prerreserva preparada' : 'Prerreserva recibida'}</p>
@@ -120,7 +134,13 @@ function confirmar(form, datos, porCorreo) {
 document.querySelectorAll('form[data-tipo]').forEach(form => {
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    if (form.dataset.tipo === 'prerreserva') {
+    if (form.dataset.tipo === 'prerreserva' || form.dataset.tipo === 'inscripcion') {
+      const marcados = form.querySelectorAll('input[name=encuentros]');
+      if (marcados.length && !form.querySelector('input[name=encuentros]:checked')) {
+        avisar('Elige al menos un encuentro.', form.parentElement);
+        marcados[0].focus();
+        return;
+      }
       let campo = form.querySelector('input[name=referencia]');
       if (!campo) {
         campo = document.createElement('input');
@@ -131,6 +151,7 @@ document.querySelectorAll('form[data-tipo]').forEach(form => {
     }
     const fd = new FormData(form);
     const datos = Object.fromEntries(fd.entries());
+    if (fd.getAll('encuentros').length) datos.encuentros = fd.getAll('encuentros').join(', ');
     delete datos.consent;
     const asunto = (form.dataset.asunto || 'Contacto') + (datos.referencia ? ' · ' + datos.referencia : '');
 
@@ -161,3 +182,22 @@ document.querySelectorAll('form[data-tipo]').forEach(form => {
     confirmar(form, datos, true);
   });
 });
+
+/* --- Preseleccionar encuentro desde ?e= --- */
+const pe = new URLSearchParams(location.search).get('e');
+if (pe) document.querySelectorAll(`input[name=encuentros][data-ev="${CSS.escape(pe)}"]`).forEach(i => { i.checked = true; });
+
+/* --- Menú de calendario: cerrar al pulsar fuera --- */
+document.addEventListener('click', e => {
+  document.querySelectorAll('details.cal[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); });
+});
+
+/* --- Aparición suave al hacer scroll --- */
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    if (en.isIntersecting) { en.target.classList.add('visto'); io.unobserve(en.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll('.aparece').forEach(el => io.observe(el));
+} else {
+  document.querySelectorAll('.aparece').forEach(el => el.classList.add('visto'));
+}

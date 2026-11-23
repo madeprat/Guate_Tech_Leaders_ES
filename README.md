@@ -10,6 +10,7 @@ Las primeras líneas de `assets/site.js` contienen el correo de contacto, el Lin
 
 ## Estructura
 
-- `*.html`: páginas del sitio. `participar.html` solo redirige a `prerreserva.html`.
+- `*.html`: páginas del sitio. `participar.html`, `prerreserva.html` y `la-mesa.html` solo redirigen a las páginas actuales.
+- `assets/cal/`: archivos de calendario (.ics) de cada encuentro. Las fechas también están en `index.html`, `apuntate.html` y `assets/eventos.js`.
 - `assets/`: estilos, script, tipografía e imágenes.
 - `CNAME`: dominio propio.

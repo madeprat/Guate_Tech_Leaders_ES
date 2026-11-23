@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Guatemala Tech Leaders Espana//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:gtle-2027-06@502tech34.prat-cas.com
+DTSTAMP:20261123T090000Z
+DTSTART:20270617T170000Z
+DTEND:20270617T183000Z
+SUMMARY:Guatemala Tech Leaders España · Encuentro
+DESCRIPTION:Encuentro de Guatemala Tech Leaders España. Presencial en Madrid o por enlace online. Apúntate para recibir la sede y el enlace: https://502tech34.prat-cas.com/apuntate.html
+LOCATION:Madrid (sede por confirmar) y online
+URL:https://502tech34.prat-cas.com/apuntate.html
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Mañana: encuentro Guatemala Tech Leaders España
+END:VALARM
+END:VEVENT
+END:VCALENDAR
