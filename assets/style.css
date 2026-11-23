@@ -391,7 +391,24 @@ ul,ol{margin:0 0 1em;padding-left:1.2em}
 
 /* =================== tejido =================== */
 .faja{height:22px;background:url('./img/faja.svg') 0 0/2400px 22px repeat-x}
-.tejido-panel{width:240px;height:300px;border-radius:20px;background:url('./img/tejido.svg') 0 0/90px auto repeat;box-shadow:0 20px 50px rgba(0,0,0,.35);border:4px solid rgba(255,255,255,.08)}
-@media (max-width:720px){.tejido-panel{width:100%;height:140px;border-radius:14px}}
 .pie-sitio{position:relative}
 .pie-sitio::before{content:"";position:absolute;left:0;right:0;top:0;height:22px;background:url('./img/faja.svg') 0 0/2400px 22px repeat-x}
+
+/* =================== herencia maya =================== */
+.rueda{width:100%;max-width:470px;justify-self:end;color:#9cc3f0}
+.rueda .giro{transform-origin:200px 200px;animation:gira 120s linear infinite}
+.rueda .giro-inv{transform-origin:200px 200px;animation:gira 90s linear infinite reverse}
+.rueda .nucleo{animation:halo 5s ease-in-out infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (max-width:900px){.rueda{max-width:300px;justify-self:start;order:-1}}
+.dia-fila{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:14px}
+.dia-fila .dia{margin:0}
+.maya-num{width:64px;height:64px;color:var(--azul);flex:none;margin-bottom:4px}
+.fecha-c.primera .maya-num{color:#9cc3f0}
+.tabla-caja{background:#fff;border-radius:20px;padding:30px 26px 18px;color:var(--marino);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.tabla-maya{width:100%;height:auto;display:block}
+.herencia .entrada{color:#cfe1f6}
+.cita-corta{margin:32px 0 0;padding-left:20px;border-left:3px solid var(--azul-vivo);font-size:20px;font-weight:650;color:#fff;line-height:1.35}
+.cita-corta cite{display:block;margin-top:10px;font-style:normal;font-weight:400;font-size:15px;color:#9cc3f0}
+.cita-corta a{color:#cfe1f6}
+@media (prefers-reduced-motion:reduce){.rueda .giro,.rueda .giro-inv,.rueda .nucleo{animation:none}}
